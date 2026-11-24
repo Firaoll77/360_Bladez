@@ -9,8 +9,8 @@ export function SiteFooter() {
   const [y, m, d] = todayEat().split("-").map(Number);
   const eth = formatEthDate(gregorianToEth(y, m, d));
 
-  // On utility pages like /bookings and /b360-mgmt, render a discreet, slim 1-line footer
-  if (pathname.startsWith("/bookings") || pathname.startsWith("/b360-mgmt") || pathname.startsWith("/admin")) {
+  // On all internal pages, render the discreet slim 1-line footer (full marketing footer only on homepage)
+  if (pathname !== "/") {
     return (
       <footer className="mt-auto border-t border-ink/10 bg-bg py-5 text-center text-xs text-ink-soft">
         <div className="mx-auto flex max-w-3xl flex-col sm:flex-row items-center justify-between gap-2 px-6">
