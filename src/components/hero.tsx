@@ -4,14 +4,14 @@ import Link from "next/link";
 export function Hero() {
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#020202]">
-      {/* Mobile photo: centered on model's face, fade profile and barber pole */}
+      {/* Mobile photo: framed on model's haircut and authentic barbershop atmosphere */}
       <Image
         src="/mob.jpg"
         alt="The Art of the Cut — 360_Bladez"
         fill
         priority
         sizes="100vw"
-        className="object-cover object-[center_top] md:hidden"
+        className="object-cover object-[60%_top] md:hidden"
       />
       {/* Desktop photo: framed so model and face are strictly positioned on the left side */}
       <Image
