@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  description  String
+  durationMin  Int
+  priceETB     Float
+  active       Boolean       @default(true)
+  appointments Appointment[]
+}
+
+model Barber {
+  id           String        @id @default(cuid())
+  name         String
+  specialty    String        @default("Master Barber")
+  bio          String        @default("")
+  photoUrl     String?
+  active       Boolean       @default(true)
+  appointments Appointment[]
+}
+
+model Appointment {
+  id              String   @id @default(cuid())
+  customerName    String
+  customerPhone   String
+  serviceId       String
+  barberId        String
+  // EAT (Africa/Addis_Ababa) local date, YYYY-MM-DD
+  date            String
+  // minutes since midnight EAT
+  startMin        Int
+  endMin          Int
+  status          String   @default("pending") // pending | confirmed | cancelled | completed
+  paymentMethod   String?  // telebirr | cbe | cash
+  paymentProofUrl String?
+  amountETB       Float?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  service Service @relation(fields: [serviceId], references: [id])
+  barber  Barber  @relation(fields: [barberId], references: [id])
+
+  @@index([barberId, date])
+  @@index([customerPhone])
+}
