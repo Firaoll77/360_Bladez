@@ -24,13 +24,18 @@ export async function fetchSlots(serviceId: string, barberId: string, date: stri
 }
 
 export async function fetchDayBusyAppointments(date: string): Promise<BusyInterval[]> {
-  return prisma.appointment.findMany({
-    where: {
-      date,
-      status: { in: ["pending", "confirmed"] },
-    },
-    select: { barberId: true, startMin: true, endMin: true },
-  });
+  try {
+    return await prisma.appointment.findMany({
+      where: {
+        date,
+        status: { in: ["pending", "confirmed"] },
+      },
+      select: { barberId: true, startMin: true, endMin: true },
+    });
+  } catch (error) {
+    console.warn("fetchDayBusyAppointments fallback to empty list:", error);
+    return [];
+  }
 }
 
 export async function fetchDayAppointments(barberId: string, date: string): Promise<BusyInterval[]> {

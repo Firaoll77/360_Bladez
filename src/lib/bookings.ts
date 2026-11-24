@@ -130,7 +130,8 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       return { ok: false, error: "Booking failed. Please try again." };
     }
-    throw err;
+    console.error("Booking creation failed:", err);
+    return { ok: false, error: "Unable to complete booking right now. Please check back shortly." };
   }
 }
 
