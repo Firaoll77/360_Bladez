@@ -6,15 +6,19 @@ import { AdminDashboard } from "@/components/admin-dashboard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin — 360_Bladez",
+  title: "Management — 360_Bladez",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
-export default async function AdminPage() {
+export default async function ManagementPage() {
   if (!(await isAdmin())) {
     return (
       <section className="bg-bg">
         <div className="mx-auto max-w-sm px-6 py-24">
-          <h1 className="font-display text-4xl text-ink">Staff Login</h1>
+          <h1 className="font-display text-4xl text-ink">Staff Access</h1>
           <div className="mt-8">
             <AdminLogin />
           </div>

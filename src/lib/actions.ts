@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { prisma } from "./db";
 import {
   cancelBooking as cancelBookingRecord,
@@ -186,9 +186,71 @@ export async function lookupPendingBooking(
 
 const ADMIN_COOKIE = "bladez_admin";
 
-export async function adminLogin(key: string) {
+type RateLimitRecord = {
+  attempts: number;
+  lockedUntil: number;
+  lastAttempt: number;
+};
+
+const loginRateLimits = new Map<string, RateLimitRecord>();
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+const ATTEMPT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+export async function adminLogin(key: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const headerList = await headers();
+  const forwarded = headerList.get("x-forwarded-for");
+  const ip = forwarded?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "client-ip";
+
+  const now = Date.now();
+  const record = loginRateLimits.get(ip) ?? { attempts: 0, lockedUntil: 0, lastAttempt: now };
+
+  // Check if IP is currently locked out
+  if (record.lockedUntil > now) {
+    const remainingMin = Math.ceil((record.lockedUntil - now) / 60000);
+    return {
+      ok: false,
+      error: `Too many failed attempts. Access locked for ${remainingMin} minute${remainingMin === 1 ? "" : "s"}.`,
+    };
+  }
+
+  // Reset attempt counter if window has passed
+  if (now - record.lastAttempt > ATTEMPT_WINDOW_MS) {
+    record.attempts = 0;
+    record.lockedUntil = 0;
+  }
+
+  record.lastAttempt = now;
+
   const expected = process.env.ADMIN_KEY ?? "";
-  if (!expected || key !== expected) return { ok: false as const };
+  const isValid = !!expected && key === expected;
+
+  if (!isValid) {
+    // Artificial 800ms delay to deter automated brute-force scripts
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    record.attempts += 1;
+    const remaining = Math.max(0, MAX_FAILED_ATTEMPTS - record.attempts);
+
+    if (record.attempts >= MAX_FAILED_ATTEMPTS) {
+      record.lockedUntil = now + LOCKOUT_MS;
+      loginRateLimits.set(ip, record);
+      return {
+        ok: false,
+        error: "Too many failed attempts. Login locked for 15 minutes.",
+      };
+    }
+
+    loginRateLimits.set(ip, record);
+    return {
+      ok: false,
+      error: `Invalid passkey. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining before lockout.`,
+    };
+  }
+
+  // Clear failed attempts on successful login
+  loginRateLimits.delete(ip);
+
   const store = await cookies();
   store.set(ADMIN_COOKIE, "1", {
     httpOnly: true,
@@ -196,7 +258,8 @@ export async function adminLogin(key: string) {
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
-  return { ok: true as const };
+
+  return { ok: true };
 }
 
 export async function adminLogout() {
@@ -222,7 +285,7 @@ export async function setAppointmentStatus(id: string, status: string) {
     return { ok: false as const, error: "Invalid status." };
   }
   await prisma.appointment.update({ where: { id }, data: { status } });
-  revalidatePath("/admin");
+  revalidatePath("/b360-mgmt");
   return { ok: true as const };
 }
 
@@ -258,7 +321,7 @@ export async function createBarber(data: {
     },
   });
 
-  revalidatePath("/admin");
+  revalidatePath("/b360-mgmt");
   revalidatePath("/book");
   return { ok: true as const, barber };
 }
@@ -291,7 +354,7 @@ export async function updateBarber(
     },
   });
 
-  revalidatePath("/admin");
+  revalidatePath("/b360-mgmt");
   revalidatePath("/book");
   return { ok: true as const, barber };
 }
@@ -312,7 +375,7 @@ export async function deleteBarber(id: string) {
       where: { id },
       data: { active: false },
     });
-    revalidatePath("/admin");
+    revalidatePath("/b360-mgmt");
     revalidatePath("/book");
     return {
       ok: true as const,
@@ -323,7 +386,7 @@ export async function deleteBarber(id: string) {
 
   // If no appointments exist, delete safely
   await prisma.barber.delete({ where: { id } });
-  revalidatePath("/admin");
+  revalidatePath("/b360-mgmt");
   revalidatePath("/book");
   return {
     ok: true as const,
@@ -337,7 +400,7 @@ export async function toggleBarberActive(id: string, active: boolean) {
     where: { id },
     data: { active },
   });
-  revalidatePath("/admin");
+  revalidatePath("/b360-mgmt");
   revalidatePath("/book");
   return { ok: true as const };
 }

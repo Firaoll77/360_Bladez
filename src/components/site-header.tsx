@@ -9,7 +9,6 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/book", label: "Book" },
   { href: "/bookings", label: "My Bookings" },
-  { href: "/admin", label: "Admin" },
 ];
 
 function subscribeScroll(callback: () => void) {
