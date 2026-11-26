@@ -44,13 +44,13 @@ export function SiteHeader() {
         <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/logo3.jpg"
-            alt="360_Bladez logo"
+            alt="360°_Bladez logo"
             width={36}
             height={36}
             className="h-9 w-9 rounded-full object-cover ring-1 ring-white/20"
           />
           <span className="font-display text-2xl tracking-wide text-white drop-shadow-sm">
-            360<span className="text-accent">_</span>BLADEZ
+            360°<span className="text-accent">_</span>BLADEZ
           </span>
         </Link>
 

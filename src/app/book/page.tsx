@@ -7,7 +7,7 @@ import { BookingWizard } from "@/components/booking-wizard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Book an Appointment — 360_Bladez",
+  title: "Book an Appointment — 360°_Bladez",
 };
 
 const DEFAULT_SERVICES: Service[] = [

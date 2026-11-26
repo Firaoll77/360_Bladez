@@ -16,9 +16,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "360_Bladez — The Art of the Cut | Barbershop in Addis Ababa",
+  title: "360°_Bladez — The Art of the Cut | Barbershop in Addis Ababa",
   description:
-    "Book a chair at 360_Bladez, Addis Ababa's premium barbershop. Precision cuts, fades, beard sculpting and grooming — book online in minutes.",
+    "Book a chair at 360°_Bladez, Addis Ababa's premium barbershop. Precision cuts, fades, beard sculpting and grooming — book online in minutes.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

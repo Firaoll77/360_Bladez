@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BookingsManager } from "@/components/bookings-manager";
 
 export const metadata: Metadata = {
-  title: "My Bookings — 360_Bladez",
+  title: "My Bookings — 360°_Bladez",
 };
 
 export default function BookingsPage() {
