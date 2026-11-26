@@ -675,10 +675,6 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                 <span className="font-bold text-ink font-display text-lg tabular-nums">400 ETB</span>
               </div>
             </div>
-
-            <p className="mt-3 text-xs text-ink-soft leading-relaxed">
-              Standard appointment is <strong className="text-ink">800 ETB total</strong>. A <strong className="text-accent">400 ETB deposit</strong> locks in your chair and barber time slot; the remaining 400 ETB is paid in person after your service. You will choose your haircut and style directly with your barber upon arrival.
-            </p>
           </div>
 
           {/* Customer name and phone (Parkinson's law: browser autofill hints) */}

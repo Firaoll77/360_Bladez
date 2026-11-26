@@ -15,11 +15,11 @@ export function SiteFooter() {
     return (
       <footer className="mt-auto border-t border-ink/10 bg-bg py-5 text-center text-xs text-ink-soft">
         <div className="mx-auto flex max-w-4xl flex-col sm:flex-row items-center justify-between gap-3 px-6">
-          <Link href="/" className="font-display tracking-wider text-ink text-sm hover:text-accent transition-colors">
+          <Link href="/#top" className="font-display tracking-wider text-ink text-sm hover:text-accent transition-colors">
             360°<span className="text-accent">_</span>BLADEZ
           </Link>
           <nav className="flex items-center gap-5 text-xs font-medium text-ink-soft">
-            <Link href="/" className="hover:text-accent transition-colors">
+            <Link href="/#top" className="hover:text-accent transition-colors">
               Home
             </Link>
             <Link href="/#hours" className="hover:text-accent transition-colors">
@@ -56,7 +56,7 @@ export function SiteFooter() {
           <p className="text-sm font-semibold uppercase tracking-widest text-accent">Links</p>
           <ul className="mt-4 space-y-2.5 text-sm text-bg/70">
             <li>
-              <Link href="/" className="hover:text-accent transition-colors">
+              <Link href="/#top" className="hover:text-accent transition-colors">
                 Home
               </Link>
             </li>

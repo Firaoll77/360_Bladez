@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 
 const links = [
-  { href: "/", label: "Home" },
+  { href: "/#top", label: "Home" },
   { href: "/book", label: "Book" },
   { href: "/bookings", label: "My Bookings" },
 ];
@@ -41,7 +41,7 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-12">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/#top" className="flex items-center gap-2.5">
           <Image
             src="/logo3.jpg"
             alt="360°_Bladez logo"
@@ -57,7 +57,7 @@ export function SiteHeader() {
         {/* Desktop nav */}
         <nav className="hidden items-center gap-7 md:flex">
           {links.map((l) => {
-            const active = pathname === l.href;
+            const active = pathname === l.href.split("#")[0];
             return (
               <Link
                 key={l.href}
@@ -103,7 +103,7 @@ export function SiteHeader() {
       {open && (
         <nav className="mx-4 mt-2 flex flex-col rounded-lg border border-white/15 bg-[#121212]/98 p-4 shadow-[0_12px_32px_rgba(0,0,0,0.7)] backdrop-blur-xl md:hidden">
           {links.map((l) => {
-            const active = pathname === l.href;
+            const active = pathname === l.href.split("#")[0];
             return (
               <Link
                 key={l.href}

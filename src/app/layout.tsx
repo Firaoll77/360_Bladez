@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bebas.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${bebas.variable} ${inter.variable} h-full antialiased scroll-smooth`}>
       <body className="min-h-full flex flex-col bg-bg text-ink">
         <SiteHeader />
         <main className="flex-1 flex flex-col">{children}</main>

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#020202]">
+    <section id="top" className="relative min-h-screen overflow-hidden bg-[#020202]">
       {/* Mobile photo: framed on model's haircut and authentic barbershop atmosphere */}
       <Image
         src="/mob.jpg"
