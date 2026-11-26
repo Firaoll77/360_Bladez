@@ -46,7 +46,7 @@ export function Hero() {
           <div className="mt-8 md:mt-10">
             <Link
               href="/book"
-              className="group relative inline-flex w-fit items-center justify-center overflow-hidden rounded-[4px] bg-accent px-8 py-3.5 font-display text-lg sm:text-xl font-semibold tracking-wider uppercase text-dark shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[0_12px_28px_rgba(193,160,92,0.45)] active:translate-y-0 active:scale-[0.98] active:shadow-sm before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full"
+              className="group relative inline-flex w-fit items-center justify-center overflow-hidden rounded-[4px] bg-accent px-8 py-3.5 font-display text-lg sm:text-xl font-semibold tracking-wider uppercase text-dark shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[0_12px_28px_rgba(193,160,92,0.45)] active:translate-y-0.5 active:scale-[0.94] active:bg-accent/90 active:shadow-none active:transition-transform before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full"
             >
               <span>Book Appointment</span>
               <span className="ml-2.5 inline-block transition-transform duration-300 ease-out group-hover:translate-x-1.5">
