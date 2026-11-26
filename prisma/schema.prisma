@@ -18,13 +18,28 @@ model Service {
 }
 
 model Barber {
-  id           String        @id @default(cuid())
+  id           String              @id @default(cuid())
   name         String
-  specialty    String        @default("Master Barber")
-  bio          String        @default("")
+  specialty    String              @default("Master Barber")
+  bio          String              @default("")
   photoUrl     String?
-  active       Boolean       @default(true)
+  active       Boolean             @default(true)
   appointments Appointment[]
+  schedule     BarberSchedule[]
+}
+
+model BarberSchedule {
+  id        String  @id @default(cuid())
+  barberId  String
+  date      String  // YYYY-MM-DD (EAT)
+  available Boolean @default(true)
+  startMin  Int?    // null = shop default (540)
+  endMin    Int?    // null = shop default (1140)
+
+  barber Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@unique([barberId, date])
+  @@index([date])
 }
 
 model Appointment {

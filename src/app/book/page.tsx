@@ -73,13 +73,14 @@ export default async function BookPage() {
 
   const today = todayEat();
   const nowMin = minutesNowEat();
+  const maxDate = addDays(today, 60);
 
   return (
     <section className="min-h-screen bg-bg">
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-24">
         <h1 className="font-display text-5xl text-ink md:text-6xl">Book a Chair</h1>
         <p className="mt-3 text-ink-soft">
-          Select your date and time, choose your barber, and enter your details.
+          Choose your barber, pick a date and time, then enter your details.
           All times are East Africa Time (Addis Ababa).
         </p>
         <div className="mt-8">
@@ -88,7 +89,7 @@ export default async function BookPage() {
             barbers={barbers}
             today={today}
             nowMin={nowMin}
-            maxDate={addDays(today, 60)}
+            maxDate={maxDate}
           />
         </div>
       </div>

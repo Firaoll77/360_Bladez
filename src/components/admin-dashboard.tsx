@@ -11,8 +11,13 @@ import {
   updateBarber,
   deleteBarber,
   toggleBarberActive,
+  fetchBarberSchedule,
+  setBarberDaySchedule,
+  deleteBarberDaySchedule,
+  copyBarberScheduleWeek,
+  type BarberScheduleEntry,
 } from "@/lib/actions";
-import { formatTime, todayEat } from "@/lib/time";
+import { formatTime, todayEat, addDays, OPEN_MIN, CLOSE_MIN } from "@/lib/time";
 import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
 import {
   Calendar,
@@ -27,6 +32,9 @@ import {
   ClipboardList,
   AlertTriangle,
   Info,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export type BarberWithStats = Barber & {
@@ -75,6 +83,9 @@ export function AdminDashboard({
   // Barber modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState<BarberWithStats | null>(null);
+
+  // Schedule modal state
+  const [schedulingBarber, setSchedulingBarber] = useState<BarberWithStats | null>(null);
 
   // Desktop sidebar collapse state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -833,6 +844,24 @@ export function AdminDashboard({
               </button>
             </div>
 
+            {/* Unscheduled barbers warning */}
+            {(() => {
+              const activeBarbers = barbers.filter((b) => b.active);
+              if (activeBarbers.length === 0) return null;
+              return (
+                <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3 text-sm">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-amber-800">Schedule reminder</p>
+                    <p className="text-xs text-amber-700 mt-0.5">
+                      Make sure each barber has upcoming days scheduled. Unscheduled barbers are visible to clients but cannot be booked.
+                      Use the <span className="font-bold">Schedule</span> button on each card to assign working days.
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Barber Team Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {barbers.map((b) => {
@@ -899,6 +928,15 @@ export function AdminDashboard({
                         className="rounded-lg border border-ink/20 px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:border-ink hover:bg-ink/5"
                       >
                         Edit Details & Photo
+                      </button>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => setSchedulingBarber(b)}
+                        className="rounded-lg border border-accent/40 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:border-accent hover:bg-accent/5 flex items-center gap-1.5"
+                      >
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        Schedule
                       </button>
 
                       <div className="flex items-center gap-1.5">
@@ -994,6 +1032,17 @@ export function AdminDashboard({
             setIsModalOpen(false);
             setFeedback({ type: "success", text: msg });
             router.refresh();
+          }}
+        />
+      )}
+
+      {/* ================= SCHEDULE MODAL ================= */}
+      {schedulingBarber && (
+        <BarberScheduleModal
+          barber={schedulingBarber}
+          onClose={() => setSchedulingBarber(null)}
+          onSuccess={(msg) => {
+            setFeedback({ type: "success", text: msg });
           }}
         />
       )}
@@ -1341,6 +1390,202 @@ function SystemConfirmModal({
             }`}
           >
             {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// BARBER SCHEDULE MODAL
+// ============================================================
+
+interface BarberScheduleModalProps {
+  barber: BarberWithStats;
+  onClose: () => void;
+  onSuccess: (msg: string) => void;
+}
+
+function BarberScheduleModal({ barber, onClose, onSuccess }: BarberScheduleModalProps) {
+  const [pending, startTransition] = useTransition();
+  const [entries, setEntries] = useState<BarberScheduleEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  const today = todayEat();
+
+  const weekStart = addDays(today, weekOffset * 7);
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const weekLabel = (() => {
+    const fmt = (s: string) => {
+      const [y, m, d] = s.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d, 12));
+      return `${dt.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" })} ${d}`;
+    };
+    return `${fmt(weekDays[0])} – ${fmt(weekDays[6])}`;
+  })();
+
+  // Load schedule for visible week
+  useEffect(() => {
+    setLoading(true);
+    fetchBarberSchedule(barber.id, weekDays[0], weekDays[6])
+      .then(setEntries)
+      .catch(() => setEntries([]))
+      .finally(() => setLoading(false));
+  }, [barber.id, weekOffset]);
+
+  function getEntry(date: string): BarberScheduleEntry | undefined {
+    return entries.find((e) => e.date === date);
+  }
+
+  function getDayMeta(dtStr: string) {
+    const [y, m, d] = dtStr.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12));
+    return {
+      weekday: dt.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" }),
+      day: d,
+      month: dt.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }),
+    };
+  }
+
+  function toggleDay(date: string) {
+    const entry = getEntry(date);
+    const isCurrentlyAvailable = entry?.available ?? false;
+
+    startTransition(async () => {
+      if (isCurrentlyAvailable) {
+        // Mark as day off
+        const res = await setBarberDaySchedule(barber.id, date, { available: false });
+        if (res.ok) {
+          setEntries((prev) => {
+            const existing = prev.find((e) => e.date === date);
+            if (existing) return prev.map((e) => e.date === date ? { ...e, available: false } : e);
+            return [...prev, res.entry];
+          });
+        }
+      } else if (entry && !entry.available) {
+        // Re-enable — delete the off entry (reverts to default available)
+        const res = await deleteBarberDaySchedule(barber.id, date);
+        if (res.ok) setEntries((prev) => prev.filter((e) => e.date !== date));
+      } else {
+        // No entry = unscheduled, schedule with default hours
+        const res = await setBarberDaySchedule(barber.id, date, { available: true, startMin: OPEN_MIN, endMin: CLOSE_MIN });
+        if (res.ok) {
+          setEntries((prev) => [...prev.filter((e) => e.date !== date), res.entry]);
+        }
+      }
+      onSuccess(`${barber.name}'s schedule updated.`);
+    });
+  }
+
+  async function handleCopyWeek() {
+    startTransition(async () => {
+      const res = await copyBarberScheduleWeek(barber.id, weekDays[0]);
+      if (res.ok) {
+        onSuccess(`Copied ${res.copied} day(s) to next week for ${barber.name}.`);
+        setWeekOffset((w) => w + 1);
+      }
+    });
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl border border-ink/15 bg-bg shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-ink/10 px-6 py-4">
+          <div>
+            <h2 className="font-display text-2xl text-ink">{barber.name} — Schedule</h2>
+            <p className="text-xs text-ink-soft mt-0.5">Click a day to toggle availability. No entry = fully available by default.</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-ink-soft hover:bg-ink/10 hover:text-ink">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Week navigation */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-ink/10">
+          <button type="button" onClick={() => setWeekOffset((w) => Math.max(0, w - 1))} disabled={weekOffset === 0}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink/15 text-ink disabled:opacity-30">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm font-semibold text-ink">{weekLabel}</span>
+          <button type="button" onClick={() => setWeekOffset((w) => w + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink/15 text-ink">
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Day grid */}
+        <div className="p-6">
+          {loading ? (
+            <div className="flex justify-center py-8 text-sm text-ink-soft">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent mr-2 inline-block" />
+              Loading schedule…
+            </div>
+          ) : (
+            <div className="grid grid-cols-7 gap-2">
+              {weekDays.map((dtStr) => {
+                const meta = getDayMeta(dtStr);
+                const entry = getEntry(dtStr);
+                const isPast = dtStr < today;
+                // No entry = available by default; entry with available=true = scheduled; entry with available=false = day off
+                const isScheduled = !entry || entry.available;
+                const isDayOff = entry && !entry.available;
+
+                return (
+                  <button
+                    key={dtStr}
+                    type="button"
+                    disabled={pending || isPast}
+                    onClick={() => toggleDay(dtStr)}
+                    className={`flex flex-col items-center rounded-xl py-3 px-1 text-center transition-all border ${
+                      isPast
+                        ? "opacity-30 cursor-not-allowed border-ink/10 bg-bg-secondary"
+                        : isScheduled && entry
+                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20"
+                        : isDayOff
+                        ? "border-red-400/30 bg-red-500/8 text-red-600 hover:bg-red-500/15"
+                        : "border-ink/15 bg-bg-secondary text-ink-soft hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{meta.weekday}</span>
+                    <span className="font-display text-xl mt-1">{meta.day}</span>
+                    <span className="text-[9px] font-semibold mt-1 uppercase">
+                      {isPast ? "past" : isScheduled && entry ? "on" : isDayOff ? "off" : "—"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Legend */}
+          <div className="mt-4 flex flex-wrap gap-3 text-[11px] text-ink-soft">
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500/30 border border-emerald-500/40" /> Scheduled (on)</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-red-500/15 border border-red-400/30" /> Day off</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-bg-secondary border border-ink/15" /> Default (available)</span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between border-t border-ink/10 px-6 py-4">
+          <button type="button" onClick={handleCopyWeek} disabled={pending}
+            className="rounded-lg border border-ink/20 px-4 py-2 text-xs font-semibold text-ink hover:border-ink/40 disabled:opacity-40 transition-colors">
+            Copy week → next
+          </button>
+          <button type="button" onClick={onClose}
+            className="rounded-lg bg-dark px-5 py-2 text-xs font-semibold text-bg hover:opacity-85 transition-opacity">
+            Done
           </button>
         </div>
       </div>

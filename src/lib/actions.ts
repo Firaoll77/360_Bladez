@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { prisma } from "./db";
+import { addDays } from "./time";
 import {
   cancelBooking as cancelBookingRecord,
   createBooking,
@@ -403,4 +404,138 @@ export async function toggleBarberActive(id: string, active: boolean) {
   revalidatePath("/b360-mgmt");
   revalidatePath("/book");
   return { ok: true as const };
+}
+
+// ---------- Barber Schedule ----------
+
+export type BarberScheduleEntry = {
+  id: string;
+  barberId: string;
+  date: string;
+  available: boolean;
+  startMin: number | null;
+  endMin: number | null;
+};
+
+/** Fetch schedule entries for a barber within a date range. */
+export async function fetchBarberSchedule(
+  barberId: string,
+  fromDate: string,
+  toDate: string
+): Promise<BarberScheduleEntry[]> {
+  return prisma.barberSchedule.findMany({
+    where: { barberId, date: { gte: fromDate, lte: toDate } },
+    orderBy: { date: "asc" },
+  });
+}
+
+/** Fetch schedule for all barbers for a date range (used by booking page). */
+export async function fetchAllBarbersSchedule(
+  fromDate: string,
+  toDate: string
+): Promise<BarberScheduleEntry[]> {
+  return prisma.barberSchedule.findMany({
+    where: { date: { gte: fromDate, lte: toDate } },
+    orderBy: { date: "asc" },
+  });
+}
+
+/** Upsert a single day's schedule for a barber. */
+export async function setBarberDaySchedule(
+  barberId: string,
+  date: string,
+  data: { available: boolean; startMin?: number | null; endMin?: number | null }
+) {
+  if (!await isAdmin()) return { ok: false as const, error: "Unauthorized." };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false as const, error: "Invalid date." };
+
+  const entry = await prisma.barberSchedule.upsert({
+    where: { barberId_date: { barberId, date } },
+    update: {
+      available: data.available,
+      startMin: data.startMin ?? null,
+      endMin: data.endMin ?? null,
+    },
+    create: {
+      barberId,
+      date,
+      available: data.available,
+      startMin: data.startMin ?? null,
+      endMin: data.endMin ?? null,
+    },
+  });
+
+  revalidatePath("/b360-mgmt");
+  revalidatePath("/book");
+  return { ok: true as const, entry };
+}
+
+/** Delete a schedule entry (reverts that day to default: available, shop hours). */
+export async function deleteBarberDaySchedule(barberId: string, date: string) {
+  if (!await isAdmin()) return { ok: false as const, error: "Unauthorized." };
+
+  await prisma.barberSchedule.deleteMany({ where: { barberId, date } });
+  revalidatePath("/b360-mgmt");
+  revalidatePath("/book");
+  return { ok: true as const };
+}
+
+/** Copy one week's schedule forward by 7 days for a barber. */
+export async function copyBarberScheduleWeek(barberId: string, fromDate: string) {
+  if (!await isAdmin()) return { ok: false as const, error: "Unauthorized." };
+
+  const toDate = addDays(fromDate, 6);
+
+  const entries = await prisma.barberSchedule.findMany({
+    where: { barberId, date: { gte: fromDate, lte: toDate } },
+  });
+
+  if (entries.length === 0) return { ok: true as const, copied: 0 };
+
+  const nextWeekEntries = entries.map((e) => ({
+    barberId: e.barberId,
+    date: addDays(e.date, 7),
+    available: e.available,
+    startMin: e.startMin,
+    endMin: e.endMin,
+  }));
+
+  await Promise.all(
+    nextWeekEntries.map((e) =>
+      prisma.barberSchedule.upsert({
+        where: { barberId_date: { barberId: e.barberId, date: e.date } },
+        update: { available: e.available, startMin: e.startMin, endMin: e.endMin },
+        create: e,
+      })
+    )
+  );
+
+  revalidatePath("/b360-mgmt");
+  revalidatePath("/book");
+  return { ok: true as const, copied: nextWeekEntries.length };
+}
+
+/**
+ * Returns barber IDs that have no schedule entries in the upcoming 7 days.
+ * Used for the admin warning banner.
+ */
+export async function fetchUnsscheduledBarbers(fromDate: string): Promise<string[]> {
+  const toDate = addDays(fromDate, 6);
+
+  const allBarbers = await prisma.barber.findMany({
+    where: { active: true },
+    select: { id: true },
+  });
+
+  const scheduled = await prisma.barberSchedule.findMany({
+    where: {
+      date: { gte: fromDate, lte: toDate },
+      available: true,
+    },
+    select: { barberId: true },
+    distinct: ["barberId"],
+  });
+
+  const scheduledIds = new Set(scheduled.map((s) => s.barberId));
+  return allBarbers.filter((b) => !scheduledIds.has(b.id)).map((b) => b.id);
 }
