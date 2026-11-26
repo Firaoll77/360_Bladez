@@ -14,6 +14,20 @@ import {
 } from "@/lib/actions";
 import { formatTime, todayEat } from "@/lib/time";
 import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
+import {
+  Calendar,
+  Clock,
+  Users,
+  LogOut,
+  Search,
+  Phone,
+  Check,
+  X,
+  Image as ImageIcon,
+  ClipboardList,
+  AlertTriangle,
+  Info,
+} from "lucide-react";
 
 export type BarberWithStats = Barber & {
   _count?: { appointments: number };
@@ -235,74 +249,56 @@ export function AdminDashboard({
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col md:flex-row w-full">
       {/* ================= MOBILE NAV BAR (< md) ================= */}
-      <div className="md:hidden sticky top-16 z-30 flex items-center justify-between border-b border-ink/10 bg-bg-secondary/95 backdrop-blur-md px-4 py-2.5 shadow-sm">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMenu("appointments");
-              setFeedback(null);
-            }}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
-              activeMenu === "appointments"
-                ? "bg-dark text-bg shadow-sm"
-                : "text-ink-soft hover:bg-ink/5 hover:text-ink"
-            }`}
-          >
-            <span>Appointments</span>
-            <span
-              className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                activeMenu === "appointments"
-                  ? "bg-accent text-dark"
-                  : pendingCount > 0
-                    ? "bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold"
-                    : "bg-ink/10 text-ink"
+      {/* ================= DESKTOP SIDEBAR (md and up) ================= */}
+      <aside
+        className={`flex flex-col justify-between border-b md:border-b-0 md:border-r border-ink/10 bg-bg-secondary transition-all duration-300 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:shrink-0 md:z-20 md:overflow-y-auto
+          /* mobile: horizontal strip */
+          w-full px-4 py-2.5 md:py-0 md:px-0
+          ${sidebarCollapsed ? "md:w-20 md:p-3" : "md:w-64 md:p-5"}
+        `}
+      >
+        {/* ---- MOBILE LAYOUT (horizontal) ---- */}
+        <div className="flex items-center justify-between gap-2 md:hidden">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => { setActiveMenu("appointments"); setFeedback(null); }}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                activeMenu === "appointments" ? "bg-dark text-bg shadow-sm" : "text-ink-soft hover:bg-ink/5 hover:text-ink"
               }`}
             >
-              {pendingCount > 0 ? `${pendingCount} new` : appointments.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMenu("barbers");
-              setFeedback(null);
-            }}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
-              activeMenu === "barbers"
-                ? "bg-dark text-bg shadow-sm"
-                : "text-ink-soft hover:bg-ink/5 hover:text-ink"
-            }`}
-          >
-            <span>Barbers</span>
-            <span
-              className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                activeMenu === "barbers"
-                  ? "bg-accent text-dark"
-                  : "bg-ink/10 text-ink"
+              <span>Appointments</span>
+              <span className={`rounded-full px-1.5 text-[10px] font-bold ${
+                activeMenu === "appointments" ? "bg-accent text-dark" : pendingCount > 0 ? "bg-amber-500/20 text-amber-600 font-bold" : "bg-ink/10 text-ink"
+              }`}>
+                {pendingCount > 0 ? `${pendingCount} new` : appointments.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveMenu("barbers"); setFeedback(null); }}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                activeMenu === "barbers" ? "bg-dark text-bg shadow-sm" : "text-ink-soft hover:bg-ink/5 hover:text-ink"
               }`}
             >
-              {barbers.length}
-            </span>
+              <span>Barbers</span>
+              <span className={`rounded-full px-1.5 text-[10px] font-bold ${
+                activeMenu === "barbers" ? "bg-accent text-dark" : "bg-ink/10 text-ink"
+              }`}>
+                {barbers.length}
+              </span>
+            </button>
+          </div>
+          <button
+            onClick={logout}
+            className="rounded-lg border border-ink/15 px-2.5 py-1 text-xs font-medium text-ink-soft hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-500 transition-colors"
+          >
+            Sign Out
           </button>
         </div>
 
-        <button
-          onClick={logout}
-          className="rounded-lg border border-ink/15 px-2.5 py-1 text-xs font-medium text-ink-soft hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-500 transition-colors"
-        >
-          Sign Out
-        </button>
-      </div>
-
-      {/* ================= DESKTOP SIDEBAR (md and up) ================= */}
-      <aside
-        className={`hidden md:flex flex-col justify-between border-r border-ink/10 bg-bg-secondary transition-all duration-300 sticky top-16 h-[calc(100vh-4rem)] shrink-0 z-20 overflow-y-auto ${
-          sidebarCollapsed ? "w-20 p-3" : "w-64 p-5"
-        }`}
-      >
-        <div>
+        {/* ---- DESKTOP LAYOUT (vertical) ---- */}
+        <div className="hidden md:block">
           {/* Brand header */}
           <div
             className={`flex items-center pb-5 border-b border-ink/10 ${
@@ -376,19 +372,7 @@ export function AdminDashboard({
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <svg
-                    className="h-5 w-5 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.8}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <Calendar className="h-5 w-5 flex-shrink-0" />
                   {sidebarCollapsed && pendingCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-dark">
                       {pendingCount}
@@ -432,19 +416,7 @@ export function AdminDashboard({
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <svg
-                    className="h-5 w-5 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.8}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
+                  <Users className="h-5 w-5 flex-shrink-0" />
                   {sidebarCollapsed && (
                     <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-dark">
                       {barbers.length}
@@ -469,8 +441,8 @@ export function AdminDashboard({
           </nav>
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="border-t border-ink/10 pt-5 space-y-4">
+        {/* Sidebar Footer — desktop only */}
+        <div className="hidden md:block border-t border-ink/10 pt-5 space-y-4">
           {!sidebarCollapsed ? (
             <div className="rounded-lg bg-bg/60 p-3 text-xs text-ink-soft">
               <div className="flex items-center gap-1.5 font-medium text-ink">
@@ -495,14 +467,7 @@ export function AdminDashboard({
               sidebarCollapsed ? "px-2" : ""
             }`}
           >
-            <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
+            <LogOut className="h-4 w-4 flex-shrink-0" />
             {!sidebarCollapsed && <span>Sign Out</span>}
           </button>
         </div>
@@ -529,13 +494,9 @@ export function AdminDashboard({
                 }`}
               >
                 {feedback.type === "success" ? (
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="h-4 w-4" />
                 ) : (
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="h-4 w-4" />
                 )}
               </span>
               <div>
@@ -561,30 +522,11 @@ export function AdminDashboard({
             {/* Header & Quick Metrics */}
             <div>
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={toggleSidebar}
-                    className="hidden md:flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-ink/15 text-ink-soft hover:border-ink/40 hover:text-ink hover:bg-ink/5 transition-all shadow-sm"
-                    title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                    aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.8" />
-                      <path d="M9 3v18" strokeWidth="1.8" />
-                      {sidebarCollapsed ? (
-                        <path d="M14 9l3 3-3 3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      ) : (
-                        <path d="M16 15l-3-3 3-3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      )}
-                    </svg>
-                  </button>
-                  <div>
-                    <h1 className="font-display text-4xl text-ink md:text-5xl">Appointments</h1>
-                    <p className="mt-1 text-sm text-ink-soft">
-                      Review and manage customer bookings in Addis Ababa (EAT)
-                    </p>
-                  </div>
+                <div>
+                  <h1 className="font-display text-4xl text-ink md:text-5xl">Appointments</h1>
+                  <p className="mt-1 text-sm text-ink-soft">
+                    Review and manage customer bookings in Addis Ababa (EAT)
+                  </p>
                 </div>
               </div>
 
@@ -668,19 +610,7 @@ export function AdminDashboard({
                   placeholder="Search by customer name, phone number, service, or barber..."
                   className="w-full rounded-lg border border-ink/15 bg-bg py-2 pl-9 pr-4 text-base sm:text-xs text-ink placeholder:text-ink-soft/60 focus:border-accent focus:outline-none"
                 />
-                <svg
-                  className="absolute left-3 top-2.5 h-4 w-4 text-ink-soft"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-ink-soft" />
                 {search && (
                   <button
                     type="button"
@@ -705,19 +635,7 @@ export function AdminDashboard({
             {/* Empty State */}
             {filteredAppointments.length === 0 && (
               <div className="rounded-2xl border border-dashed border-ink/20 bg-bg-secondary p-12 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-ink-soft/50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
+                <ClipboardList className="mx-auto h-12 w-12 text-ink-soft/50" />
                 <h3 className="font-display mt-4 text-2xl text-ink">No Bookings Found</h3>
                 <p className="mt-1 text-xs text-ink-soft">
                   No appointments match the current filter or search criteria.
@@ -761,19 +679,7 @@ export function AdminDashboard({
                             href={`tel:${a.customerPhone}`}
                             className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
                           >
-                            <svg
-                              className="h-3 w-3"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                              />
-                            </svg>
+                            <Phone className="h-3 w-3" />
                             <span>{a.customerPhone}</span>
                           </a>
                         </div>
@@ -836,38 +742,14 @@ export function AdminDashboard({
 
                         {/* Date & Ethiopian Calendar */}
                         <div className="flex items-center gap-2 text-ink">
-                          <svg
-                            className="h-4 w-4 text-accent flex-shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
+                          <Calendar className="h-4 w-4 text-accent flex-shrink-0" />
                           <span className="font-medium tabular-nums">{a.date}</span>
                           <span className="text-ink-soft tabular-nums">({eth})</span>
                         </div>
 
                         {/* Time slot in EAT */}
                         <div className="flex items-center gap-2 text-ink">
-                          <svg
-                            className="h-4 w-4 text-accent flex-shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
+                          <Clock className="h-4 w-4 text-accent flex-shrink-0" />
                           <span className="font-medium tabular-nums">
                             {formatTime(a.startMin)} – {formatTime(a.endMin)}
                           </span>
@@ -895,19 +777,7 @@ export function AdminDashboard({
                           onClick={() => setPreviewProofUrl(a.paymentProofUrl)}
                           className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
                         >
-                          <svg
-                            className="h-3.5 w-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
+                          <ImageIcon className="h-3.5 w-3.5" />
                           <span>View Receipt</span>
                         </button>
                       ) : (
@@ -947,30 +817,11 @@ export function AdminDashboard({
         {activeMenu === "barbers" && (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={toggleSidebar}
-                  className="hidden md:flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-ink/15 text-ink-soft hover:border-ink/40 hover:text-ink hover:bg-ink/5 transition-all shadow-sm"
-                  title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                  aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.8" />
-                    <path d="M9 3v18" strokeWidth="1.8" />
-                    {sidebarCollapsed ? (
-                      <path d="M14 9l3 3-3 3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    ) : (
-                      <path d="M16 15l-3-3 3-3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    )}
-                  </svg>
-                </button>
-                <div>
-                  <h1 className="font-display text-4xl text-ink md:text-5xl">Manage Barbers</h1>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    {activeBarbersCount} active of {barbers.length} total staff · Add new barbers, update portraits and names, or manage booking availability.
-                  </p>
-                </div>
+              <div>
+                <h1 className="font-display text-4xl text-ink md:text-5xl">Manage Barbers</h1>
+                <p className="mt-1 text-sm text-ink-soft">
+                  {activeBarbersCount} active of {barbers.length} total staff · Add new barbers, update portraits and names, or manage booking availability.
+                </p>
               </div>
 
               <button
@@ -1460,23 +1311,9 @@ function SystemConfirmModal({
             }`}
           >
             {confirmVariant === "danger" ? (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
+              <AlertTriangle className="h-6 w-6" />
             ) : (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <Info className="h-6 w-6" />
             )}
           </div>
 

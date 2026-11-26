@@ -1,18 +1,47 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
+  const mobileImgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Only run the effect on mobile-sized viewports
+    const mq = window.matchMedia("(max-width: 767px)");
+    if (!mq.matches) return;
+
+    function onScroll() {
+      const el = mobileImgRef.current;
+      if (!el) return;
+      // scrollY 0 → scale 1, scrollY 400px → scale 1.18
+      const scale = 1 + Math.min(window.scrollY / 400, 1) * 0.18;
+      el.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <section id="top" className="relative min-h-screen overflow-hidden bg-[#020202]">
-      {/* Mobile photo: framed on model's haircut and authentic barbershop atmosphere */}
-      <Image
-        src="/mob.jpg"
-        alt="The Art of the Cut — 360_Bladez"
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-[60%_top] md:hidden"
-      />
+      {/* Mobile image wrapper — transform origin at top so zoom feels anchored */}
+      <div
+        ref={mobileImgRef}
+        className="absolute inset-0 origin-top will-change-transform md:hidden"
+      >
+        <Image
+          src="/mob.jpg"
+          alt="The Art of the Cut — 360_Bladez"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[60%_top]"
+        />
+      </div>
+
       {/* Desktop photo: framed so model and face are strictly positioned on the left side */}
       <Image
         src="/heros.jpg"
@@ -46,12 +75,9 @@ export function Hero() {
           <div className="mt-8 md:mt-10">
             <Link
               href="/book"
-              className="group relative inline-flex w-fit items-center justify-center overflow-hidden rounded-[4px] bg-accent px-8 py-3.5 font-display text-lg sm:text-xl font-semibold tracking-wider uppercase text-dark shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[0_12px_28px_rgba(193,160,92,0.45)] active:translate-y-0.5 active:scale-[0.94] active:bg-accent/90 active:shadow-none active:transition-transform before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full"
+              className="relative inline-flex w-fit items-center justify-center overflow-hidden rounded-[4px] bg-accent px-8 py-3.5 font-display text-lg sm:text-xl font-semibold tracking-wider uppercase text-dark shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[0_12px_28px_rgba(193,160,92,0.45)] active:translate-y-0.5 active:scale-[0.94] active:bg-accent/90 active:shadow-none active:transition-transform before:absolute before:inset-0 before:-translate-x-full before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full"
             >
               <span>Book Appointment</span>
-              <span className="ml-2.5 inline-block transition-transform duration-300 ease-out group-hover:translate-x-1.5">
-                →
-              </span>
             </Link>
           </div>
         </div>

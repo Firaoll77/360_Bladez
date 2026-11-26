@@ -7,6 +7,13 @@ import type { Barber, Service } from "@prisma/client";
 import { fetchDayBusyAppointments, submitBooking } from "@/lib/actions";
 import { CLOSE_MIN, OPEN_MIN, SLOT_STEP_MIN, addDays, formatTime, isBreakSlot } from "@/lib/time";
 import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
 import { intervalsOverlap, type BusyInterval } from "@/lib/slots";
 
 interface Props {
@@ -260,9 +267,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
     return (
       <div className="rounded-2xl border border-ink/10 bg-bg-secondary p-8 sm:p-10 text-center shadow-[var(--shadow-card)]">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent/20 text-dark">
-          <svg className="h-7 w-7 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-          </svg>
+          <CheckCircle2 className="h-7 w-7 text-accent" />
         </div>
         <h2 className="font-display mt-4 text-3xl sm:text-4xl text-ink">You&rsquo;re booked!</h2>
         <p className="mt-2 text-sm text-ink-soft">
@@ -400,9 +405,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                 aria-label="Previous week"
                 className="flex h-11 w-11 items-center justify-center rounded-2xl border border-ink/15 bg-bg text-ink transition-all hover:border-ink/40 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 type="button"
@@ -411,9 +414,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                 aria-label="Next week"
                 className="flex h-11 w-11 items-center justify-center rounded-2xl border border-ink/15 bg-bg text-ink transition-all hover:border-ink/40 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                </svg>
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -542,10 +543,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
 
           {/* Timezone Notice */}
           <div className="mt-8 flex items-center gap-2 text-xs text-ink-soft">
-            <svg className="h-4 w-4 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
-              <path strokeWidth="1.5" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-            </svg>
+            <Globe className="h-4 w-4 shrink-0 opacity-70" />
             <span>Times shown in Africa/Addis_Ababa (UTC+3) · East Africa Time</span>
           </div>
 
@@ -564,10 +562,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                   )}
                   {startsInText && (
                     <p className="flex items-center gap-1.5 text-xs text-ink-soft tabular-nums">
-                      <svg className="h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <circle cx="12" cy="12" r="9" strokeWidth="1.5" />
-                        <path strokeWidth="1.5" d="M12 7v5l3 2" />
-                      </svg>
+                      <Clock className="h-3.5 w-3.5 opacity-70" />
                       <span>{startsInText}</span>
                     </p>
                   )}

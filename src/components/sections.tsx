@@ -10,6 +10,12 @@ import {
   minutesNowEat,
   todayEat,
 } from "@/lib/time";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+} from "lucide-react";
 import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
 
 function subscribeTimer(callback: () => void) {
@@ -148,9 +154,6 @@ export function HoursSection() {
             <h2 className="font-display text-5xl text-ink md:text-6xl tracking-tight">
               Hours & Location
             </h2>
-            <p className="mt-3 max-w-xl text-sm sm:text-base text-ink-soft">
-              Walk-ins welcome, or book your chair online to skip the wait. Located on Bole Road in Addis Ababa.
-            </p>
           </div>
 
           {/* Two-Column Grid */}
@@ -162,49 +165,33 @@ export function HoursSection() {
                   <h3 className="font-display text-2xl text-ink tracking-wide">
                     Opening Hours
                   </h3>
-
-                  {/* Real-time Status Badge */}
-                  <div
-                    className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-semibold ${
-                      isOpen
-                        ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-700"
-                        : isBreak
-                        ? "bg-amber-500/10 border border-amber-500/30 text-amber-800"
-                        : "bg-ink/5 border border-ink/15 text-ink-soft"
-                    }`}
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${
-                        isOpen
-                          ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"
-                          : isBreak
-                          ? "bg-amber-500"
-                          : "bg-ink/40"
-                      }`}
-                    />
-                    <span>
-                      {isOpen
-                        ? `Open Now · Closes at ${currentDayName === "Sunday" ? "6:00 PM" : "7:00 PM"}`
-                        : isBreak
-                        ? "Lunch Break · Opens at 2:30 PM"
-                        : "Closed Now · Opens at 9:00 AM"}
-                    </span>
-                  </div>
                 </div>
 
                 {/* 7 Days List — 12hr format, Monday open, no notes */}
                 <ol className="divide-y divide-dashed divide-ink/10 text-sm">
-                  {SCHEDULE.map((row) => (
-                    <li
-                      key={row.day}
-                      className="flex items-center justify-between py-3.5 first:pt-4"
-                    >
-                      <span className="font-semibold text-ink">{row.day}</span>
-                      <span className="font-medium text-ink tabular-nums">
-                        {row.hours}
-                      </span>
-                    </li>
-                  ))}
+                  {SCHEDULE.map((row) => {
+                    const isToday = row.day === currentDayName;
+                    return (
+                      <li
+                        key={row.day}
+                        className={`flex items-center justify-between py-3.5 first:pt-4 ${
+                          isToday ? "rounded-lg px-3 -mx-3 bg-accent/10" : ""
+                        }`}
+                      >
+                        <span className={`font-semibold ${isToday ? "text-accent" : "text-ink"}`}>
+                          {row.day}
+                          {isToday && (
+                            <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                              Today
+                            </span>
+                          )}
+                        </span>
+                        <span className={`font-medium tabular-nums ${isToday ? "text-accent" : "text-ink"}`}>
+                          {row.hours}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
 
@@ -234,20 +221,7 @@ export function HoursSection() {
                   {/* Address */}
                   <li className="flex items-start gap-3.5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
+                      <MapPin size={20} />
                     </span>
                     <address className="not-italic text-sm">
                       <span className="block font-semibold text-ink">360 Bladez Barbershop</span>
@@ -259,19 +233,7 @@ export function HoursSection() {
                   {/* Phone */}
                   <li className="flex items-center gap-3.5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                      </svg>
+                      <Phone size={20} />
                     </span>
                     <a
                       className="text-sm font-semibold text-ink hover:text-accent transition-colors"
@@ -284,20 +246,7 @@ export function HoursSection() {
                   {/* Email */}
                   <li className="flex items-center gap-3.5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <rect width="20" height="16" x="2" y="4" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
+                      <Mail size={20} />
                     </span>
                     <a
                       className="text-sm font-semibold text-ink hover:text-accent transition-colors"

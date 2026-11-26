@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cancelBookingAction, lookupPendingBooking, type PendingBookingData } from "@/lib/actions";
+import { Clock, X } from "lucide-react";
 import { formatTime, getTimeLeft, todayEat } from "@/lib/time";
 import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
 
@@ -143,9 +144,7 @@ export function BookingsManager() {
             {/* Countdown / Time Left Banner */}
             <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <Clock className="h-5 w-5 text-accent flex-shrink-0" />
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-ink-soft">Time Left</p>
                   <p className="text-sm sm:text-base font-bold text-ink tabular-nums">
@@ -290,9 +289,7 @@ export function BookingsManager() {
                 onClick={() => setShowFullReceipt(false)}
                 className="rounded-lg p-1 text-ink-soft hover:bg-ink/10 hover:text-ink"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="mt-3 flex justify-center">

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Bebas_Neue, Urbanist } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -10,8 +10,8 @@ const bebas = Bebas_Neue({
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
   subsets: ["latin"],
 });
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bebas.variable} ${inter.variable} h-full antialiased scroll-smooth`}>
+    <html lang="en" className={`${bebas.variable} ${urbanist.variable} h-full antialiased scroll-smooth`}>
       <body className="min-h-full flex flex-col bg-bg text-ink">
         <SiteHeader />
         <main className="flex-1 flex flex-col">{children}</main>
