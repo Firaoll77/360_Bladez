@@ -152,11 +152,8 @@ export function AdminDashboard({
         const q = search.toLowerCase();
         const matchesName = a.customerName.toLowerCase().includes(q);
         const matchesPhone = a.customerPhone.toLowerCase().includes(q);
-        const matchesService = a.service.name.toLowerCase().includes(q);
         const matchesBarber = a.barber.name.toLowerCase().includes(q);
-        if (!matchesName && !matchesPhone && !matchesService && !matchesBarber) {
-          return false;
-        }
+        if (!matchesName && !matchesPhone && !matchesBarber) return false;
       }
 
       return true;
@@ -660,13 +657,16 @@ export function AdminDashboard({
                       {/* Card Top: Date/Time + Status */}
                       <div className="flex items-start justify-between gap-3 border-b border-ink/10 pb-3">
                         <div className="min-w-0">
-                          {/* Date & time — what admin looks for first */}
-                          <div className="flex items-center gap-1.5 text-sm font-semibold text-ink tabular-nums">
-                            <Calendar className="h-3.5 w-3.5 text-accent flex-shrink-0" />
-                            <span>{a.date}</span>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm font-semibold text-ink tabular-nums">
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                              <Calendar className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                              {a.date}
+                            </span>
                             <span className="text-ink-soft">·</span>
-                            <Clock className="h-3.5 w-3.5 text-accent flex-shrink-0" />
-                            <span>{formatTime(a.startMin)} – {formatTime(a.endMin)}</span>
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                              <Clock className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                              {formatTime(a.startMin)} – {formatTime(a.endMin)}
+                            </span>
                           </div>
                           <p className="mt-0.5 text-[11px] text-ink-soft tabular-nums">({eth})</p>
                         </div>
@@ -694,20 +694,14 @@ export function AdminDashboard({
                         </a>
                       </div>
 
-                      {/* Service & Price */}
-                      <div className="mt-3 flex items-baseline justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="font-display text-xl tracking-wide text-ink truncate">{a.service.name}</p>
-                          <p className="text-[11px] text-ink-soft">{a.service.durationMin} mins</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-display text-lg text-accent tabular-nums">
-                            {a.amountETB?.toLocaleString() ?? a.service.priceETB} ETB
-                          </p>
-                          <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-ink/10 text-ink-soft">
-                            {a.paymentMethod ?? "cash"}
-                          </span>
-                        </div>
+                      {/* Deposit & payment method */}
+                      <div className="mt-3 flex items-center justify-end gap-2">
+                        <p className="font-display text-lg text-accent tabular-nums">
+                          {a.amountETB?.toLocaleString() ?? "400"} ETB
+                        </p>
+                        <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-ink/10 text-ink-soft">
+                          {a.paymentMethod ?? "cash"}
+                        </span>
                       </div>
 
                       {/* Barber */}

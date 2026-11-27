@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { isAdmin, fetchAllAppointments, fetchAllBarbersAdmin } from "@/lib/actions";
 import { AdminLogin } from "@/components/admin-login";
 import { AdminDashboard } from "@/components/admin-dashboard";
@@ -16,14 +17,17 @@ export const metadata: Metadata = {
 export default async function ManagementPage() {
   if (!(await isAdmin())) {
     return (
-      <section className="bg-bg">
-        <div className="mx-auto max-w-sm px-6 py-24">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-bg px-6">
+        <div className="w-full max-w-sm">
           <h1 className="font-display text-4xl text-ink">Staff Access</h1>
-          <div className="mt-8">
+          <div className="mt-6">
             <AdminLogin />
           </div>
+          <p className="mt-6 text-center text-xs text-ink-soft">
+            <Link href="/" className="hover:text-ink transition-colors">← Back to site</Link>
+          </p>
         </div>
-      </section>
+      </div>
     );
   }
 
