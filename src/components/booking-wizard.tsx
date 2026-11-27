@@ -22,7 +22,6 @@ import { formatEthDate, gregorianToEth } from "@/lib/ethiopian";
 import {
   ChevronLeft,
   ChevronRight,
-  Globe,
   Clock,
   CheckCircle2,
 } from "lucide-react";
@@ -418,7 +417,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
 
       {/* ── STEP 2: Date & Time ──────────────────────────────────────────── */}
       {step === 2 && (
-        <div className="rounded-3xl border border-ink/10 bg-bg p-5 sm:p-8 shadow-sm">
+        <div className="rounded-3xl border border-ink/10 bg-bg p-4 sm:p-8 shadow-sm">
           {/* Selected barber recap */}
           <div className="mb-5 flex items-center gap-3 rounded-xl bg-bg-secondary px-4 py-2.5 text-sm">
             <div className="relative h-8 w-8 overflow-hidden rounded-full border border-accent/40 bg-dark flex-shrink-0">
@@ -451,8 +450,8 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
             </div>
           </div>
 
-          {/* 7-day strip */}
-          <div className="mt-6 grid grid-cols-7 gap-1 sm:gap-2">
+          {/* 7-day strip — uniform height, colour-only selection indicator */}
+          <div className="mt-6 grid grid-cols-7 gap-1">
             {weekDays.map((dtStr) => {
               const meta = getDayMeta(dtStr);
               const isSelected = date === dtStr;
@@ -466,22 +465,22 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                   type="button"
                   disabled={!available || isPast}
                   onClick={() => pickDate(dtStr)}
-                  className={`flex flex-col items-center justify-center py-3 sm:py-4 px-1 rounded-2xl transition-all active:scale-[0.96] ${
+                  className={`flex h-16 flex-col items-center justify-center rounded-xl px-0.5 transition-all active:scale-[0.96] ${
                     isSelected
-                      ? "bg-accent text-dark font-bold shadow-lg ring-2 ring-accent/30 -translate-y-0.5"
+                      ? "bg-accent text-dark"
                       : !available || isPast
                       ? "opacity-30 cursor-not-allowed text-ink"
-                      : "text-ink hover:bg-bg-secondary/60"
+                      : "text-ink hover:bg-bg-secondary/70"
                   }`}
                 >
-                  <span className={`text-[10px] sm:text-xs font-semibold tracking-wider ${isSelected ? "text-dark/90" : "text-ink-soft"}`}>
+                  <span className={`text-[9px] font-semibold uppercase tracking-wider ${isSelected ? "text-dark/80" : "text-ink-soft"}`}>
                     {meta.abbr}
                   </span>
-                  <span className={`mt-1 font-display text-lg sm:text-2xl font-bold tabular-nums ${isSelected ? "text-dark" : "text-ink"}`}>
+                  <span className={`font-display text-base font-bold tabular-nums leading-tight ${isSelected ? "text-dark" : "text-ink"}`}>
                     {meta.day}
                   </span>
                   {isUnavailable && (
-                    <span className="mt-1 text-[8px] font-semibold text-ink-soft/60">OFF</span>
+                    <span className={`text-[9px] font-bold uppercase ${isSelected ? "text-dark/70" : "text-ink-soft"}`}>off</span>
                   )}
                 </button>
               );
@@ -489,18 +488,18 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
           </div>
 
           {/* Unavailability note */}
-          <p className="mt-3 text-xs text-ink-soft min-h-[1.25rem]">
+          <p className="mt-2 text-xs text-ink-soft min-h-[1.25rem]">
             {weekDays.some((d) => !getBarberHours(barberId, d).available && d >= today) && (
               <span>
-                <span className="font-semibold text-ink">{barber?.name}</span> is not available on greyed-out days — pick any highlighted date.
+                <span className="font-semibold text-ink">{barber?.name}</span> is not available on greyed-out days.
               </span>
             )}
           </p>
 
           {/* AM / PM toggle */}
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-ink/10 pt-6">
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-ink-soft">
-              {period === "AM" ? "Morning Slots" : "Afternoon Slots"}
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-ink/10 pt-5">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-soft">
+              {period === "AM" ? "Morning" : "Afternoon"}
             </span>
             <div className="inline-flex rounded-full border border-ink/10 bg-bg-secondary/60 p-1">
               {(["AM", "PM"] as const).map((p) => (
@@ -508,24 +507,23 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                   className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
                     period === p ? "bg-bg text-ink shadow-sm border border-ink/10 font-bold" : "text-ink-soft hover:text-ink"
                   }`}>
-                  <span className="text-sm">{p === "AM" ? "☼" : "☾"}</span>
-                  <span>{p === "AM" ? "AM" : "PM (to 6:30 PM)"}</span>
+                  <span>{p === "AM" ? "☼ AM" : "☾ PM"}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Slot grid */}
+          {/* Slot grid — tighter height */}
           {loadingSlots ? (
-            <div className="mt-6 flex items-center justify-center py-12 text-sm text-ink-soft">
+            <div className="mt-5 flex items-center justify-center py-10 text-sm text-ink-soft">
               <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent inline-block" />
               Checking availability…
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="mt-4 grid grid-cols-3 gap-2">
               {activeSlots.length === 0 ? (
-                <p className="col-span-full py-8 text-center text-sm text-ink-soft">
-                  No {period === "AM" ? "morning" : "afternoon"} slots available on this day.
+                <p className="col-span-full py-6 text-center text-sm text-ink-soft">
+                  No {period === "AM" ? "morning" : "afternoon"} slots on this day.
                 </p>
               ) : (
                 activeSlots.map(({ min, isPassed, isFull }) => {
@@ -533,14 +531,14 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                   const disabled = isPassed || isFull;
                   return (
                     <button key={min} type="button" disabled={disabled} onClick={() => setStartMin(min)}
-                      className={`flex items-center justify-center rounded-2xl py-3.5 px-3 text-sm font-medium transition-all duration-150 tabular-nums ${
+                      className={`flex h-11 items-center justify-center rounded-xl text-sm font-medium transition-all tabular-nums ${
                         isSelected
                           ? "border-2 border-accent bg-accent font-bold text-dark shadow-md"
                           : disabled
                           ? "cursor-not-allowed border-2 border-dashed border-ink/20 bg-bg-secondary/20 text-ink/35 line-through"
-                          : "border-2 border-ink/15 bg-bg text-ink hover:border-accent hover:text-accent hover:shadow-sm active:scale-[0.96]"
+                          : "border-2 border-ink/15 bg-bg text-ink hover:border-accent hover:text-accent active:scale-[0.96]"
                       }`}>
-                      {isSelected && <span className="mr-1.5 text-xs font-black">✓</span>}
+                      {isSelected && <span className="mr-1 text-xs font-black">✓</span>}
                       {formatTime(min)}
                     </button>
                   );
@@ -549,19 +547,13 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
             </div>
           )}
 
-          {/* Timezone notice */}
-          <div className="mt-8 flex items-center gap-2 text-xs text-ink-soft">
-            <Globe className="h-4 w-4 shrink-0 opacity-70" />
-            <span>Times shown in Africa/Addis_Ababa (UTC+3) · East Africa Time</span>
-          </div>
-
-          {/* Footer summary */}
-          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-ink/10 pt-6">
-            <div className="space-y-1">
+          {/* Footer summary + single CTA */}
+          <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-ink/10 pt-5">
+            <div className="space-y-0.5">
               {startMin !== null ? (
                 <>
-                  <p className="font-bold text-ink text-sm sm:text-base tabular-nums">{selectedSlotSummary}</p>
-                  {ethLabel && <p className="text-xs sm:text-sm font-bold text-accent">{ethLabel}</p>}
+                  <p className="font-bold text-ink text-sm tabular-nums">{selectedSlotSummary}</p>
+                  {ethLabel && <p className="text-xs font-bold text-accent">{ethLabel}</p>}
                   {startsInText && (
                     <p className="flex items-center gap-1.5 text-xs text-ink-soft tabular-nums">
                       <Clock className="h-3.5 w-3.5 opacity-70" />
@@ -570,12 +562,12 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
                   )}
                 </>
               ) : (
-                <p className="text-sm text-ink-soft italic">Select a time slot above to proceed</p>
+                <p className="text-sm text-ink-soft italic">Select a time slot above</p>
               )}
             </div>
             <button type="button" onClick={() => setStep(3)} disabled={startMin === null}
-              className="inline-flex items-center justify-center rounded-2xl bg-accent px-8 py-3.5 font-display text-sm uppercase tracking-wider font-bold text-dark shadow-md transition-all hover:opacity-90 active:scale-[0.96] disabled:opacity-40 disabled:cursor-not-allowed">
-              Proceed →
+              className="inline-flex items-center justify-center rounded-xl bg-accent px-8 py-3 font-display text-sm uppercase tracking-wider font-bold text-dark shadow-md transition-all hover:opacity-90 active:scale-[0.96] disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
+              Continue →
             </button>
           </div>
         </div>
@@ -763,12 +755,7 @@ export function BookingWizard({ services, barbers, today, nowMin, maxDate }: Pro
             className="rounded-xl px-5 py-3 text-sm font-medium text-ink-soft hover:text-ink transition-all active:scale-[0.96]">
             ← Back
           </button>
-          {step === 2 ? (
-            <button type="button" onClick={() => setStep(3)} disabled={!canNext}
-              className="rounded-xl bg-dark px-8 py-3 text-sm font-semibold text-bg hover:opacity-85 active:scale-[0.96] disabled:opacity-40 transition-all">
-              Continue →
-            </button>
-          ) : (
+          {step === 3 && (
             <button type="button" onClick={submit}
               disabled={pending || !name.trim() || !phone.trim() || !proofUrl || uploading}
               className="rounded-xl bg-accent px-8 py-3 font-display text-base tracking-wider uppercase font-semibold text-dark shadow-sm hover:opacity-90 active:scale-[0.96] disabled:opacity-40 transition-all">
