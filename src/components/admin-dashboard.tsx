@@ -529,43 +529,20 @@ export function AdminDashboard({
 
         {/* ================= VIEW 1: APPOINTMENTS ================= */}
         {activeMenu === "appointments" && (
-          <div className="space-y-6">
-            {/* Header & Quick Metrics */}
+          <div className="space-y-4">
+            {/* Header & Compact Stats */}
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h1 className="font-display text-4xl text-ink md:text-5xl">Appointments</h1>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    Review and manage customer bookings in Addis Ababa (EAT)
-                  </p>
-                </div>
-              </div>
+              <h1 className="font-display text-4xl text-ink md:text-5xl">Appointments</h1>
 
-              {/* Metrics cards (Tabular numbers to avoid layout shift) */}
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-ink/10 bg-bg-secondary p-4 shadow-sm">
-                  <p className="text-xs uppercase tracking-wider text-ink-soft font-semibold">
-                    Upcoming
-                  </p>
-                  <p className="font-display mt-2 text-3xl text-ink tabular-nums">{upcomingCount}</p>
+              {/* 2-tile compact stats row */}
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div className="flex items-center justify-between rounded-lg border border-ink/10 bg-bg-secondary px-3 py-2.5 shadow-sm">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-soft">Today</span>
+                  <span className="font-display text-2xl text-accent tabular-nums">{todayCount}</span>
                 </div>
-                <div className="rounded-xl border border-ink/10 bg-bg-secondary p-4 shadow-sm">
-                  <p className="text-xs uppercase tracking-wider text-ink-soft font-semibold">
-                    Today
-                  </p>
-                  <p className="font-display mt-2 text-3xl text-accent tabular-nums">{todayCount}</p>
-                </div>
-                <div className="rounded-xl border border-ink/10 bg-bg-secondary p-4 shadow-sm">
-                  <p className="text-xs uppercase tracking-wider text-ink-soft font-semibold">
-                    Pending
-                  </p>
-                  <p className="font-display mt-2 text-3xl text-amber-500 tabular-nums">{pendingCount}</p>
-                </div>
-                <div className="rounded-xl border border-ink/10 bg-bg-secondary p-4 shadow-sm">
-                  <p className="text-xs uppercase tracking-wider text-ink-soft font-semibold">
-                    Total Bookings
-                  </p>
-                  <p className="font-display mt-2 text-3xl text-ink tabular-nums">{appointments.length}</p>
+                <div className="flex items-center justify-between rounded-lg border border-ink/10 bg-bg-secondary px-3 py-2.5 shadow-sm">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-soft">Total</span>
+                  <span className="font-display text-2xl text-ink tabular-nums">{appointments.length}</span>
                 </div>
               </div>
             </div>
@@ -618,7 +595,7 @@ export function AdminDashboard({
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by customer name, phone number, service, or barber..."
+                  placeholder="Search name or phone"
                   className="w-full rounded-lg border border-ink/15 bg-bg py-2 pl-9 pr-4 text-base sm:text-xs text-ink placeholder:text-ink-soft/60 focus:border-accent focus:outline-none"
                 />
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-ink-soft" />
@@ -662,12 +639,12 @@ export function AdminDashboard({
 
                 const statusStyles = {
                   pending:
-                    "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+                    "bg-amber-500/15 text-amber-800 border-amber-500/40 font-bold",
                   confirmed:
-                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+                    "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
                   completed:
-                    "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
-                  cancelled: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30",
+                    "bg-blue-500/10 text-blue-600 border-blue-500/30",
+                  cancelled: "bg-red-500/10 text-red-600 border-red-500/30",
                 }[a.status] ?? "bg-ink/10 text-ink border-ink/20";
 
                 const barberPhoto =
@@ -680,47 +657,48 @@ export function AdminDashboard({
                     className="flex flex-col justify-between rounded-2xl border border-ink/10 bg-bg-secondary p-5 shadow-[var(--shadow-card)] transition-all hover:border-ink/25 hover:shadow-md"
                   >
                     <div>
-                      {/* Card Top: Customer & Status */}
-                      <div className="flex items-start justify-between gap-3 border-b border-ink/10 pb-3.5">
+                      {/* Card Top: Date/Time + Status */}
+                      <div className="flex items-start justify-between gap-3 border-b border-ink/10 pb-3">
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-base text-ink truncate">
-                            {a.customerName}
-                          </h3>
-                          <a
-                            href={`tel:${a.customerPhone}`}
-                            className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
-                          >
-                            <Phone className="h-3 w-3" />
-                            <span>{a.customerPhone}</span>
-                          </a>
+                          {/* Date & time — what admin looks for first */}
+                          <div className="flex items-center gap-1.5 text-sm font-semibold text-ink tabular-nums">
+                            <Calendar className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                            <span>{a.date}</span>
+                            <span className="text-ink-soft">·</span>
+                            <Clock className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                            <span>{formatTime(a.startMin)} – {formatTime(a.endMin)}</span>
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-ink-soft tabular-nums">({eth})</p>
                         </div>
+                        <select
+                          value={a.status}
+                          disabled={pending}
+                          onChange={(e) => setStatus(a.id, e.target.value)}
+                          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold capitalize cursor-pointer focus:outline-none flex-shrink-0 ${statusStyles}`}
+                        >
+                          {STATUSES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
 
-                        {/* Status selector */}
-                        <div className="flex-shrink-0">
-                          <select
-                            value={a.status}
-                            disabled={pending}
-                            onChange={(e) => setStatus(a.id, e.target.value)}
-                            className={`rounded-lg border px-2.5 py-1 text-xs font-semibold capitalize cursor-pointer focus:outline-none ${statusStyles}`}
-                          >
-                            {STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                      {/* Customer name + phone */}
+                      <div className="mt-3">
+                        <h3 className="font-semibold text-base text-ink truncate">{a.customerName}</h3>
+                        <a
+                          href={`tel:${a.customerPhone}`}
+                          className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
+                        >
+                          <Phone className="h-3 w-3" />
+                          <span>{a.customerPhone}</span>
+                        </a>
                       </div>
 
                       {/* Service & Price */}
-                      <div className="mt-4 flex items-baseline justify-between gap-2">
+                      <div className="mt-3 flex items-baseline justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="font-display text-xl tracking-wide text-ink truncate">
-                            {a.service.name}
-                          </p>
-                          <p className="text-[11px] text-ink-soft">
-                            {a.service.durationMin} mins duration
-                          </p>
+                          <p className="font-display text-xl tracking-wide text-ink truncate">{a.service.name}</p>
+                          <p className="text-[11px] text-ink-soft">{a.service.durationMin} mins</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="font-display text-lg text-accent tabular-nums">
@@ -732,56 +710,26 @@ export function AdminDashboard({
                         </div>
                       </div>
 
-                      {/* Barber & Schedule Info */}
-                      <div className="mt-4 space-y-2.5 rounded-xl bg-bg/60 p-3.5 text-xs">
-                        {/* Barber */}
-                        <div className="flex items-center gap-2.5">
-                          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-full ring-1 ring-accent/40 bg-dark">
-                            <Image
-                              src={barberPhoto}
-                              alt={a.barber.name}
-                              fill
-                              sizes="28px"
-                              className="object-cover"
-                            />
-                          </div>
-                          <div>
-                            <span className="text-ink-soft text-[11px]">Barber: </span>
-                            <span className="font-semibold text-ink">{a.barber.name}</span>
-                          </div>
+                      {/* Barber */}
+                      <div className="mt-3 flex items-center gap-2.5 rounded-xl bg-bg/60 px-3 py-2 text-xs">
+                        <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-full ring-1 ring-accent/40 bg-dark">
+                          <Image src={barberPhoto} alt={a.barber.name} fill sizes="28px" className="object-cover" />
                         </div>
-
-                        {/* Date & Ethiopian Calendar */}
-                        <div className="flex items-center gap-2 text-ink">
-                          <Calendar className="h-4 w-4 text-accent flex-shrink-0" />
-                          <span className="font-medium tabular-nums">{a.date}</span>
-                          <span className="text-ink-soft tabular-nums">({eth})</span>
-                        </div>
-
-                        {/* Time slot in EAT */}
-                        <div className="flex items-center gap-2 text-ink">
-                          <Clock className="h-4 w-4 text-accent flex-shrink-0" />
-                          <span className="font-medium tabular-nums">
-                            {formatTime(a.startMin)} – {formatTime(a.endMin)}
-                          </span>
-                          <span className="text-[11px] text-ink-soft">EAT</span>
-                        </div>
+                        <span className="text-ink-soft">Barber:</span>
+                        <span className="font-semibold text-ink">{a.barber.name}</span>
                       </div>
 
-                      {/* Customer Note if present */}
+                      {/* Note */}
                       {a.notes && (
                         <div className="mt-3 rounded-lg border border-ink/10 bg-bg p-2.5 text-xs text-ink-soft italic">
-                          <span className="font-semibold not-italic text-ink text-[11px]">
-                            Note:{" "}
-                          </span>
+                          <span className="font-semibold not-italic text-ink text-[11px]">Note: </span>
                           &ldquo;{a.notes}&rdquo;
                         </div>
                       )}
                     </div>
 
-                    {/* Card Footer: Payment Proof & Quick Actions */}
-                    <div className="mt-5 border-t border-ink/10 pt-3 flex items-center justify-between gap-2">
-                      {/* Payment proof lightbox trigger */}
+                    {/* Card Footer: Receipt + Action buttons */}
+                    <div className="mt-4 border-t border-ink/10 pt-3.5 space-y-3">
                       {a.paymentProofUrl ? (
                         <button
                           type="button"
@@ -795,14 +743,13 @@ export function AdminDashboard({
                         <span className="text-[11px] text-ink-soft">No receipt uploaded</span>
                       )}
 
-                      {/* Quick Status Buttons for pending */}
                       {a.status === "pending" && (
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex gap-3">
                           <button
                             type="button"
                             disabled={pending}
                             onClick={() => setStatus(a.id, "confirmed")}
-                            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-150 hover:bg-emerald-700 active:scale-[0.96]"
+                            className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
                           >
                             Confirm
                           </button>
@@ -810,7 +757,7 @@ export function AdminDashboard({
                             type="button"
                             disabled={pending}
                             onClick={() => handleRejectAppointment(a.id, a.customerName)}
-                            className="rounded-lg border border-red-500/30 px-2.5 py-1.5 text-xs font-medium text-red-500 transition-all duration-150 hover:bg-red-500/10 active:scale-[0.96]"
+                            className="flex-1 rounded-xl border border-red-400/40 py-2.5 text-sm font-semibold text-red-600 transition-all hover:bg-red-500/10 active:scale-[0.97] disabled:opacity-40"
                           >
                             Reject
                           </button>

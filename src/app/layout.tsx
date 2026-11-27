@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Urbanist } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -25,9 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${bebas.variable} ${urbanist.variable} h-full antialiased scroll-smooth`}>
       <body className="min-h-full flex flex-col bg-bg text-ink">
-        <SiteHeader />
-        <main className="flex-1 flex flex-col">{children}</main>
-        <SiteFooter />
+        {children}
       </body>
     </html>
   );
